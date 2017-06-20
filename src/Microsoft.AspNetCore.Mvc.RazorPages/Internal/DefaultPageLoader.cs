@@ -3,7 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure;
@@ -16,10 +21,14 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Internal
         private const string ModelPropertyName = "Model";
 
         private readonly IViewCompilerProvider _viewCompilerProvider;
+        private readonly IAuthorizationPolicyProvider _policyProvider;
 
-        public DefaultPageLoader(IViewCompilerProvider viewCompilerProvider)
+        public DefaultPageLoader(
+            IViewCompilerProvider viewCompilerProvider,
+            IAuthorizationPolicyProvider policyPovider)
         {
             _viewCompilerProvider = viewCompilerProvider;
+            _policyProvider = policyPovider;
         }
 
         private IViewCompiler Compiler => _viewCompilerProvider.GetCompiler();
@@ -30,11 +39,12 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Internal
             var viewDescriptor = compileTask.GetAwaiter().GetResult();
             var pageAttribute = (RazorPageAttribute)viewDescriptor.ViewAttribute;
 
-            return CreateDescriptor(actionDescriptor, pageAttribute);
+            return CreateDescriptor(_policyProvider, actionDescriptor, pageAttribute);
         }
 
         // Internal for unit testing
         internal static CompiledPageActionDescriptor CreateDescriptor(
+            IAuthorizationPolicyProvider policyProvider,
             PageActionDescriptor actionDescriptor,
             RazorPageAttribute pageAttribute)
         {
@@ -59,6 +69,37 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Internal
                 handlerMethods = CreateHandlerMethods(pageType);
             }
 
+            // Filters are only allowed to be declared on an explicitly specified model.
+            var filters = actionDescriptor.FilterDescriptors;
+            if (modelType != null && modelType != pageType)
+            {
+                var modelAttributes = modelType.GetCustomAttributes(inherit: true);
+                if (modelAttributes.Length > 0)
+                {
+                    filters = filters.ToList();
+                }
+
+                var authorizeData = modelAttributes.OfType<IAuthorizeData>();
+                if (authorizeData.Any())
+                {
+                    var filter = AuthorizationApplicationModelProvider.GetFilter(policyProvider, authorizeData);
+                    filters.Add(new FilterDescriptor(filter, FilterScope.Action));
+                }
+
+                for (var i = 0; i < modelAttributes.Length; i++)
+                {
+                    if (modelAttributes[i] is IAllowAnonymous)
+                    {
+                        filters.Add(new FilterDescriptor(new AllowAnonymousFilter(), FilterScope.Action));
+                    }
+
+                    if (modelAttributes[i] is IFilterMetadata filter)
+                    {
+                        filters.Add(new FilterDescriptor(filter, FilterScope.Action));
+                    }
+                }
+            }
+
             var boundProperties = CreateBoundProperties(handlerType);
 
             return new CompiledPageActionDescriptor(actionDescriptor)
@@ -66,7 +107,7 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Internal
                 ActionConstraints = actionDescriptor.ActionConstraints,
                 AttributeRouteInfo = actionDescriptor.AttributeRouteInfo,
                 BoundProperties = boundProperties,
-                FilterDescriptors = actionDescriptor.FilterDescriptors,
+                FilterDescriptors = filters,
                 HandlerMethods = handlerMethods,
                 HandlerTypeInfo = handlerType,
                 ModelTypeInfo = modelType,
