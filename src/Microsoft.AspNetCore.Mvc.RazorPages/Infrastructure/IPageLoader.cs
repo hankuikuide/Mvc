@@ -12,7 +12,7 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure
         /// Produces a <see cref="CompiledPageActionDescriptor"/> given a <see cref="PageActionDescriptor"/>.
         /// </summary>
         /// <param name="actionDescriptor">The <see cref="PageActionDescriptor"/>.</param>
-        /// <returns>The <see cref="CompiledPageActionDescriptor"/>.</returns>
-        CompiledPageActionDescriptor Load(PageActionDescriptor actionDescriptor);
+        /// <returns>The <see cref="PageLoaderResult"/>.</returns>
+        PageLoaderResult Load(PageActionDescriptor actionDescriptor);
     }
 }

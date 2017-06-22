@@ -24,13 +24,14 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Internal
 
         private IViewCompiler Compiler => _viewCompilerProvider.GetCompiler();
 
-        public CompiledPageActionDescriptor Load(PageActionDescriptor actionDescriptor)
+        public PageLoaderResult Load(PageActionDescriptor actionDescriptor)
         {
             var compileTask = Compiler.CompileAsync(actionDescriptor.RelativePath);
             var viewDescriptor = compileTask.GetAwaiter().GetResult();
             var pageAttribute = (RazorPageAttribute)viewDescriptor.ViewAttribute;
 
-            return CreateDescriptor(actionDescriptor, pageAttribute);
+            var descriptor = CreateDescriptor(actionDescriptor, pageAttribute);
+            return new PageLoaderResult(descriptor, viewDescriptor.ExpirationTokens);
         }
 
         // Internal for unit testing

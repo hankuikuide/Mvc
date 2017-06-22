@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -17,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
 using Microsoft.AspNetCore.Razor.Language;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -97,15 +97,24 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Internal
             }
 
             var cache = CurrentCache;
-            PageActionInvokerCacheEntry cacheEntry;
 
             IFilterMetadata[] filters;
-            if (!cache.Entries.TryGetValue(actionDescriptor, out cacheEntry))
+            if (!cache.Entries.TryGetValue(actionDescriptor, out PageActionInvokerCacheEntry cacheEntry))
             {
+                var loaderResult = _loader.Load(actionDescriptor);
+                var compiledActionDescriptor = loaderResult.ActionDescriptor;
+
                 var filterFactoryResult = FilterFactory.GetAllFilters(_filterProviders, actionContext);
                 filters = filterFactoryResult.Filters;
-                cacheEntry = CreateCacheEntry(context, filterFactoryResult.CacheableFilters);
-                cacheEntry = cache.Entries.GetOrAdd(actionDescriptor, cacheEntry);
+                cacheEntry = CreateCacheEntry(context, compiledActionDescriptor, filterFactoryResult.CacheableFilters);
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions();
+                for (var i = 0; i < loaderResult.ExpirationTokens.Count; i++)
+                {
+                    cacheEntryOptions.ExpirationTokens.Add(loaderResult.ExpirationTokens[i]);
+                }
+
+                cacheEntry = cache.Entries.Set(actionDescriptor, cacheEntry, cacheEntryOptions);
             }
             else
             {
@@ -120,7 +129,6 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Internal
 
         public void OnProvidersExecuted(ActionInvokerProviderContext context)
         {
-
         }
 
         private InnerCache CurrentCache
@@ -167,11 +175,9 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Internal
 
         private PageActionInvokerCacheEntry CreateCacheEntry(
             ActionInvokerProviderContext context,
+            CompiledPageActionDescriptor compiledActionDescriptor,
             FilterItem[] cachedFilters)
         {
-            var actionDescriptor = (PageActionDescriptor)context.ActionContext.ActionDescriptor;
-            var compiledActionDescriptor = _loader.Load(actionDescriptor);
-
             var viewDataFactory = ViewDataDictionaryFactory.CreateFactory(compiledActionDescriptor.ModelTypeInfo);
 
             var pageFactory = _pageFactoryProvider.CreatePageFactory(compiledActionDescriptor);
@@ -250,8 +256,7 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Internal
                 Version = version;
             }
 
-            public ConcurrentDictionary<ActionDescriptor, PageActionInvokerCacheEntry> Entries { get; } =
-                new ConcurrentDictionary<ActionDescriptor, PageActionInvokerCacheEntry>();
+            public MemoryCache Entries { get; } = new MemoryCache(new MemoryCacheOptions());
 
             public int Version { get; }
         }
