@@ -427,7 +427,7 @@ namespace Microsoft.AspNetCore.Mvc
                         new[]
                         {
                             typeof(CompiledPageApplicationModelProvider),
-                            typeof(RazorProjectPageApplicationModelProvider),
+                            typeof(RazorProjectPageRouteModelProvider),
                             typeof(PageFilterApplicationModelProvider),
                         }
                     },

@@ -318,7 +318,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static void ApplyConventions(RazorPagesOptions options, PageApplicationModel[] models)
         {
-            foreach (var convention in options.Conventions)
+            foreach (var convention in options.ApplicationModelConventions)
             {
                 foreach (var model in models)
                 {

@@ -1,7 +1,8 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
+using System.Reflection;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Microsoft.AspNetCore.Mvc.ApplicationModels
 {
@@ -10,9 +11,19 @@ namespace Microsoft.AspNetCore.Mvc.ApplicationModels
     /// </summary>
     public class PageApplicationModelProviderContext
     {
+        public PageApplicationModelProviderContext(PageActionDescriptor descriptor, TypeInfo pageTypeInfo)
+        {
+            ActionDescriptor = descriptor;
+            PageType = pageTypeInfo;
+        }
+
+        public PageActionDescriptor ActionDescriptor { get; }
+
+        public TypeInfo PageType { get; }
+
         /// <summary>
-        /// Gets the <see cref="PageApplicationModel"/> instances.
+        /// Gets or sets the <see cref="PageApplicationModel"/>.
         /// </summary>
-        public IList<PageApplicationModel> Results { get; } = new List<PageApplicationModel>();
+        public PageApplicationModel PageModel { get; set; }
     }
 }

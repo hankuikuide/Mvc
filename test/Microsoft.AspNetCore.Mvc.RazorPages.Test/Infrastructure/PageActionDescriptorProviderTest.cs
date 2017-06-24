@@ -268,14 +268,14 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure
             var localFilter = Mock.Of<IFilterMetadata>();
             var options = new MvcOptions();
             options.Filters.Add(globalFilter);
-            var convention = new Mock<IPageApplicationModelConvention>();
+            var convention = new Mock<IPageRouteModelConvention>();
             convention.Setup(c => c.Apply(It.IsAny<PageApplicationModel>()))
                 .Callback((PageApplicationModel model) =>
                 {
                     model.Filters.Add(localFilter);
                 });
             var razorOptions = GetRazorPagesOptions();
-            razorOptions.Value.Conventions.Add(convention.Object);
+            razorOptions.Value.ApplicationModelConventions.Add(convention.Object);
             var applicationModelProvider = new TestPageApplicationModelProvider(CreateModel());
             var filterProvider = new PageFilterApplicationModelProvider();
             var provider = new PageActionDescriptorProvider(

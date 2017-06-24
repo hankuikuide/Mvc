@@ -88,11 +88,14 @@ namespace Microsoft.Extensions.DependencyInjection
                 ServiceDescriptor.Singleton<IActionDescriptorProvider, PageActionDescriptorProvider>());
             services.TryAddSingleton<IActionDescriptorChangeProvider, PageActionDescriptorChangeProvider>();
             services.TryAddEnumerable(
-                ServiceDescriptor.Singleton<IPageApplicationModelProvider, RazorProjectPageApplicationModelProvider>());
+                ServiceDescriptor.Singleton<IPageRouteModelProvider, RazorProjectPageRouteModelProvider>());
             services.TryAddEnumerable(
-                ServiceDescriptor.Singleton<IPageApplicationModelProvider, CompiledPageApplicationModelProvider>());
+                ServiceDescriptor.Singleton<IPageRouteModelProvider, CompiledPageRouteModelProvider>());
+
             services.TryAddEnumerable(
-                ServiceDescriptor.Singleton<IPageApplicationModelProvider, PageFilterApplicationModelProvider>());
+                ServiceDescriptor.Singleton<IPageApplicationModelProvider, DefaultPageApplicationModelProvider>());
+            services.TryAddEnumerable(
+                ServiceDescriptor.Singleton<IPageApplicationModelProvider, AuthorizationPageApplicationModelProvider>());
 
             services.TryAddEnumerable(
                 ServiceDescriptor.Singleton<IActionInvokerProvider, PageActionInvokerProvider>());

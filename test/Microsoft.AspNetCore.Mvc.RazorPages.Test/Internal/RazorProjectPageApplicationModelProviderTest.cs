@@ -27,7 +27,7 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Internal
 
             var optionsManager = new TestOptionsManager<RazorPagesOptions>();
             optionsManager.Value.RootDirectory = "/";
-            var provider = new RazorProjectPageApplicationModelProvider(project, optionsManager, NullLoggerFactory.Instance);
+            var provider = new RazorProjectPageRouteModelProvider(project, optionsManager, NullLoggerFactory.Instance);
             var context = new PageApplicationModelProviderContext();
 
             // Act
@@ -61,7 +61,7 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Internal
 
             var optionsManager = new TestOptionsManager<RazorPagesOptions>();
             optionsManager.Value.RootDirectory = "/";
-            var provider = new RazorProjectPageApplicationModelProvider(project, optionsManager, NullLoggerFactory.Instance);
+            var provider = new RazorProjectPageRouteModelProvider(project, optionsManager, NullLoggerFactory.Instance);
             var context = new PageApplicationModelProviderContext();
 
             // Act
@@ -99,7 +99,7 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Internal
 
             var optionsManager = new TestOptionsManager<RazorPagesOptions>();
             optionsManager.Value.RootDirectory = "/";
-            var provider = new RazorProjectPageApplicationModelProvider(project, optionsManager, NullLoggerFactory.Instance);
+            var provider = new RazorProjectPageRouteModelProvider(project, optionsManager, NullLoggerFactory.Instance);
             var context = new PageApplicationModelProviderContext();
 
             // Act & Assert
@@ -125,7 +125,7 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Internal
 
             var optionsManager = new TestOptionsManager<RazorPagesOptions>();
             optionsManager.Value.RootDirectory = "/";
-            var provider = new RazorProjectPageApplicationModelProvider(project, optionsManager, NullLoggerFactory.Instance);
+            var provider = new RazorProjectPageRouteModelProvider(project, optionsManager, NullLoggerFactory.Instance);
             var context = new PageApplicationModelProviderContext();
 
             // Act
@@ -163,7 +163,7 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Internal
 
             var optionsManager = new TestOptionsManager<RazorPagesOptions>();
             optionsManager.Value.RootDirectory = "/Pages";
-            var provider = new RazorProjectPageApplicationModelProvider(project, optionsManager, NullLoggerFactory.Instance);
+            var provider = new RazorProjectPageRouteModelProvider(project, optionsManager, NullLoggerFactory.Instance);
             var context = new PageApplicationModelProviderContext();
 
             // Act

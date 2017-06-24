@@ -4,9 +4,9 @@
 namespace Microsoft.AspNetCore.Mvc.ApplicationModels
 {
     /// <summary>
-    /// Builds or modifies an <see cref="PageApplicationModel"/> for Razor Page invocation.
+    /// Builds or modifies an <see cref="PageRouteModelProviderContext"/> for Razor Page routing.
     /// </summary>
-    public interface IPageApplicationModelProvider
+    public interface IPageRouteModelProvider
     {
         /// <summary>
         /// Gets the order value for determining the order of execution of providers. Providers execute in
@@ -30,15 +30,15 @@ namespace Microsoft.AspNetCore.Mvc.ApplicationModels
         int Order { get; }
 
         /// <summary>
-        /// Executed for the first pass of <see cref="ApplicationModel"/> building. See <see cref="Order"/>.
+        /// Executed for the first pass of building <see cref="PageRouteModel"/> instances. See <see cref="Order"/>.
         /// </summary>
-        /// <param name="context">The <see cref="PageApplicationModelProviderContext"/>.</param>
-        void OnProvidersExecuting(PageApplicationModelProviderContext context);
+        /// <param name="context">The <see cref="PageRouteModelProviderContext"/>.</param>
+        void OnProvidersExecuting(PageRouteModelProviderContext context);
 
         /// <summary>
-        /// Executed for the second pass of <see cref="ApplicationModel"/> building. See <see cref="Order"/>.
+        /// Executed for the second pass of building <see cref="PageRouteModel"/> instances. See <see cref="Order"/>.
         /// </summary>
-        /// <param name="context">The <see cref="PageApplicationModelProviderContext"/>.</param>
-        void OnProvidersExecuted(PageApplicationModelProviderContext context);
+        /// <param name="context">The <see cref="PageRouteModelProviderContext"/>.</param>
+        void OnProvidersExecuted(PageRouteModelProviderContext context);
     }
 }

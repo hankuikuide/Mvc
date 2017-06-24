@@ -18,17 +18,17 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             // Arrange
             var services = new ServiceCollection().AddOptions();
-            var expected = Mock.Of<IPageApplicationModelConvention>();
+            var expected = Mock.Of<IPageRouteModelConvention>();
             var builder = new MvcBuilder(services, new ApplicationPartManager());
             builder.AddRazorPagesOptions(options =>
             {
-                options.Conventions.Add(expected);
+                options.ApplicationModelConventions.Add(expected);
             });
             var serviceProvider = services.BuildServiceProvider();
             var accessor = serviceProvider.GetRequiredService<IOptions<RazorPagesOptions>>();
 
             // Act
-            var conventions = accessor.Value.Conventions;
+            var conventions = accessor.Value.ApplicationModelConventions;
 
             // Assert
             Assert.Collection(conventions,
